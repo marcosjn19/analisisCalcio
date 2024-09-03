@@ -1,0 +1,2 @@
+
+    ax.figure.canvas.draw()
