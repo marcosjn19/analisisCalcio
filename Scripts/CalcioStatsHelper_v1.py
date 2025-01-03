@@ -145,9 +145,12 @@ def guardarReporte():
     dfInicial  = dfInicial.set_axis   ( labels=indicesCelulas, axis=1 )
     dfInicial.insert(len(dfInicial.columns), "Celula Promedio", valoresPromInicial)
     dfOriginal = dfInicial
-    for i in dfInicial:
-        data = dfInicial[i].to_numpy()
-        indicesTMaximoOg.append(np.where(data==np.max(data))[0])
+    for i in dfInicial.columns:  # Excluir "Celula Promedio" si es la última columna
+        data = pd.to_numeric(dfInicial[i], errors='coerce').dropna().to_numpy()  # Convertir a numérico
+        if len(data) > 0:  # Asegúrate de que no está vacío
+            max_idx = np.argmax(data)  # Devuelve el índice del máximo
+            indicesTMaximoOg.append(max_idx)
+        
     #Maximos
     maxInicial = dfInicial.max()
     dfInicial.loc[len(dfInicial.index)+1] = maxInicial  
@@ -164,12 +167,16 @@ def guardarReporte():
     #Velocidad subida
     getPendientesOg()
     getMitadOg()
+    print ( indicesTMaximoOg ) 
+    print ( "-------" ) 
+    print ( indicesTPendientesOg)
     indicesTMaximoOg = np.array(indicesTMaximoOg)
     indicesTPendientesOg = np.array(indicesTPendientesOg)
     tiempo = indicesTMaximoOg-indicesTPendientesOg
     helper = []
+    print ( tiempo )
     for i in tiempo:
-        helper.append(i[0])
+        helper.append(i)
     helper = np.array(helper)
     helper = helper/10
     velocidades = maxInicial / helper
@@ -179,7 +186,7 @@ def guardarReporte():
     tiempo = indicesMitadOg - indicesTMaximoOg
     helper = []
     for i in tiempo:
-        helper.append(i[0])
+        helper.append(i)
     helper = np.array(helper)
     helper = helper/10
     global decrementosOg
@@ -219,9 +226,10 @@ def getPendientesOg(): #Metodo util para obtener el ms donde inicia la tendencia
         data = dfInicial[i].to_numpy()
         maximosOg.append(np.max(data))
 
-    for i in dfPendientes:
-        data = dfPendientes[i].to_numpy()
-        indicesTPendientesOg.append(np.where(data == np.max(data))[0])
+    for i in dfPendientes.columns:  # Iterar sobre todas las columnas
+        data = pd.to_numeric(dfPendientes[i], errors='coerce').dropna().to_numpy()  # Asegurarte de trabajar con números
+        if len(data) > 0:  # Asegúrate de que no está vacío
+            indicesTPendientesOg.append(np.argmax(data))
 
 def getPendientesSel(): #Metodo util para obtener el ms donde inicia la tendencia al alza
     global salidaSeleccion
@@ -255,8 +263,11 @@ def getMitadOg():
     decrementosOg = (( maximosOg-1 )/2) + 1
 
     for i, idx in enumerate(indicesTPendientesOg):
+        if ( i == 53) :
+            break
+        print ( idx )
         col_name = dfInicial.columns[i]
-        dfInicial[col_name] = dfInicial[col_name][idx[0] + 10:]
+        dfInicial[col_name] = dfInicial[col_name][idx + 10:]
 
     dfInicial = dfInicial.reset_index(drop=True)
     for i, col in enumerate(dfInicial.columns):
