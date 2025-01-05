@@ -23,6 +23,7 @@ def cargaInicial():
     global ax
     global times
     global valoresPromInicial
+    global file
     file = filedialog.askopenfilename()
     print ( file )
     #print ( file )
@@ -71,7 +72,7 @@ def doGraphics(eliminados):
     pt.clf()
     pt.close()
     salidaSeleccion = []
-    calcioData = pd.read_excel("./Control_1408.xlsx")   #Recuperamos los datos del Excel
+    calcioData = pd.read_excel(file)   #Recuperamos los datos del Excel
     times = calcioData.get("Time")                      #Guardamos los 
     calcioData = calcioData.drop(columns='Time')        #Eliminamos la columna tiempo
     for i in eliminados:
@@ -94,7 +95,7 @@ def doGraphics(eliminados):
 
 def verCelula(i):
     salida = []
-    calcioData = pd.read_excel("./Control_1408.xlsx")   #Recuperamos los datos del Excel
+    calcioData = pd.read_excel(file)   #Recuperamos los datos del Excel
     times = calcioData.get("Time")                      #Guardamos los 
     calcioData = calcioData.drop(columns='Time')        #Eliminamos la columna tiempo
     desiredCel = calcioData.get(f'#{i+1} (Blue)')
